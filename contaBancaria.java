@@ -1,4 +1,4 @@
-abstract class contaBancaria implements operacoes{
+abstract class contaBancaria implements Operacoes {
     private String numeroDaConta;
     private String titular;
     protected double saldo;
@@ -33,13 +33,30 @@ abstract class contaBancaria implements operacoes{
         this.saldo = saldo;
     }
 
-    public void transferir(double valor, contaBancaria destino) {
-        if (this.saldo >= valor) {
-            this.sacar(valor);
-            destino.depositar(valor);
-            System.out.println("Transferência de " + valor + " realizada com sucesso para " + destino.getNumeroDaConta());
+    protected void logTransacao(String tipo, double valor, Usuario usuario) {
+
+    }
+
+    protected boolean verificarAutorizacao(Usuario usuario) {
+        return usuario != null && usuario.isAutorizado();
+    }
+
+    protected boolean verificarSaldo(double valor) {
+        return this.saldo >= valor;
+    }
+
+    @Override
+    public void transferir(double valor, contaBancaria destino, Usuario usuario) {
+        if (verificarAutorizacao(usuario)) {
+            if (this.verificarSaldo(valor)) {
+                this.sacar(valor, usuario);
+                destino.depositar(valor, usuario);
+                logTransacao("Transferência", valor, usuario);
+            } else {
+                System.out.println("Saldo insuficiente");
+            }
         } else {
-            System.out.println("Saldo insuficiente");
+            System.out.println("Usuário não autorizado");
         }
     }
 }
